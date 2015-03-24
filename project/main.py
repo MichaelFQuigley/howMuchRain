@@ -21,19 +21,19 @@ if __name__ == "__main__":
     args = parser.parse_args()
     trainMax, testMax = 0, 0
     
+    print 'finding max for training data'
+    trainMax = findMaxRadar(args.train)
+
+    print 'finding max for test data'
+    testMax = findMaxRadar(args.test)
+    
     print 'processing training data'
-    trainData, trainMax = processData(args.train, False)
+
+    maxPad = max(testMax, trainMax)
+    
+    processData(args.train, False, maxPad)
 
 #    print 'processing test data'
 #    testData, testMax = processData(args.test, True)
     
-    padMax = max(trainMax, testMax)
-
-    print 'padding train'    
-    for data in trainData:
-        data.padColumns(padMax)
-        
-#    print 'padding test'
-#     for data in testData:
-#         data.padColumns(padMax)
 

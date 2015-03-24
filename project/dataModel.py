@@ -44,13 +44,11 @@ def findMaxRadar(inputFile):
     
     return maxValue
 
-def processData(inputFile, isTest):
-    maxRadar = findMaxRadar(inputFile)
-
+def processData(inputFile, isTest, padAmount):
     inputFile = open(inputFile.name, 'r')
     reader = csv.reader(inputFile, delimiter=',')
     headers = reader.next()
-    allData = []
+
     for i, row in enumerate(reader):
         rowId =  row[0]
         
@@ -58,11 +56,9 @@ def processData(inputFile, isTest):
             print "processing data row: " + rowId
         
         data = WeatherData(headers, row, isTest)
-        allData.append(data)
+        data.padColumns(padAmount)
         
     inputFile.close()
-    return allData, maxRadar
-
 class WeatherData(object):
     
     def __init__(self, headers, row, isTest=False):
