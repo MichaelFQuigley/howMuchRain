@@ -58,6 +58,8 @@ def processData(inputFile, isTest, padAmount):
         data = WeatherData(headers, row, isTest)
         data.padColumns(padAmount)
         
+        #DO LEARNING HERE!
+        
     inputFile.close()
 class WeatherData(object):
     
