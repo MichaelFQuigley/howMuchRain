@@ -15,4 +15,4 @@ if __name__ == "__main__":
                           "defaults to stdout"))
 
     args = parser.parse_args()
-    processData(args.input)
+    trainData = processData(args.input)
