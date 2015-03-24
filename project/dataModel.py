@@ -44,7 +44,7 @@ def findMaxRadar(inputFile):
     
     return maxValue
 
-def processData(inputFile):
+def processData(inputFile, isTest):
     maxRadar = findMaxRadar(inputFile)
 
     inputFile = open(inputFile.name, 'r')
@@ -57,12 +57,11 @@ def processData(inputFile):
         if int(rowId) % 1000 == 0:
             print "processing data row: " + rowId
         
-        data = WeatherData(headers, row, True)
-        data.padColumns(maxRadar)
+        data = WeatherData(headers, row, isTest)
         allData.append(data)
         
     inputFile.close()
-    return allData
+    return allData, maxRadar
 
 class WeatherData(object):
     
@@ -70,11 +69,11 @@ class WeatherData(object):
         
         self.id = int( row.pop(0) )
         if isTest:
-            self.expected = float (row[len(row) - 1])
-            headers = headers[1 : len(headers) - 1] # get rid of id header and expected
-        else:
             self.expected = None
             headers = headers[1 : len(headers)] # get rid of id header and expected
+        else:
+            self.expected = float (row[len(row) - 1])
+            headers = headers[1 : len(headers) - 1] # get rid of id header and expected
         
         self.columns = {}
         
