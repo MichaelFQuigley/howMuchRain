@@ -1,6 +1,7 @@
 import argparse
 import sys
 from dataModel import *
+import simplePerceptron
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
@@ -32,10 +33,13 @@ if __name__ == "__main__":
     maxPad = max(testMax, trainMax)
 
     i = 0
+    classifier = simplePerceptron.perceptron(.5, 5)
     for row in processDataGenerate(args.test, False, maxPad):
-        print row.getSortedColsArr()
-        print '\n'
-        if i == 0:
-            break
+        classifier.trainOnExample(row.getSortedColsArr(), row.expected)
+        
+    for row in processDataGenerate(args.test, False, maxPad):
+        if i % 1000 == 0:
+            print classifier.getPredictionFromVec(row.getSortedColsArr())
         i += 1
+
 
