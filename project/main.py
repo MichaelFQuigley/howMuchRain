@@ -17,23 +17,25 @@ if __name__ == "__main__":
                     default=sys.stdout,
                     help=("path to an output file, "
                           "defaults to stdout"))
-
+    
     args = parser.parse_args()
     trainMax, testMax = 0, 0
-    
+
     print 'finding max for training data'
-    trainMax = findMaxRadar(args.train)
+    trainMax =  findMaxColumnDim(ColInd.TimeToEnd, args.train)
 
     print 'finding max for test data'
-    testMax = findMaxRadar(args.test)
+    testMax =  findMaxColumnDim(ColInd.TimeToEnd, args.test)
     
     print 'processing training data'
 
     maxPad = max(testMax, trainMax)
-    
-    processData(args.train, False, maxPad)
 
-#    print 'processing test data'
-#    testData, testMax = processData(args.test, True)
-    
+    i = 0
+    for row in processDataGenerate(args.test, False, maxPad):
+        print row.getSortedColsArr()
+        print '\n'
+        if i == 0:
+            break
+        i += 1
 

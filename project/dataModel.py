@@ -7,7 +7,34 @@ import csv
 import sys
 import itertools
 import math
-    
+
+
+#names for column indexes
+class ColInd:
+	Id                = 0
+	TimeToEnd         = 1
+	DistanceToRadar   = 2
+	Composite         = 3
+	HybridScan        = 4
+	HydrometeorType   = 5
+	Kdp               = 6
+	RR1               = 7
+	RR2               = 8
+	RR3               = 9
+	RadarQualityIndex = 10
+	Reflectivity      = 11
+	ReflectivityQC    = 12
+	RhoHV             = 13
+	Velocity          = 14
+	Zdr               = 15
+	LogWaterVolume    = 16
+	MassWeightedMean  = 17
+	MassWeightedSD    = 18
+	Expected          = 19
+
+	
+	
+	
 def makeDevData(inputfile, amount):
     reader = csv.reader(inputfile, delimiter=',')
     headers = reader.next()
@@ -25,32 +52,55 @@ def makeDevData(inputfile, amount):
     finally:
         f.close()
 
-def findMaxRadar(inputFile):
-    reader = csv.reader(inputFile, delimiter=',')
-    
-    maxValue = -1 * sys.maxint
-    headers = reader.next()
-        
+	
+
+def findMaxColumnDim(index, inputFile):
+    reader   = csv.reader(inputFile, delimiter=',')
+    maxValue = 0
+    headers  = reader.next()
+
     for i, row in enumerate(reader):
-        rowId =  int(row.pop(0))
+        rowId =  int(row[ColInd.Id])
         
         if rowId % 1000 == 0:
-            print "Finding max row: " + str(rowId)
+            print "Finding max column dimension for row: " + str(rowId)
         
-        firstColumn = row[0].split(' ')
+        firstColumn = row[index].split(' ')
         maxValue = max(maxValue, len(firstColumn))
     
     inputFile.close()
     
     return maxValue
+	
 
+
+def processDataGenerate(inputFile, isTest, padAmount):
+    inputFile = open(inputFile.name, 'r')
+    reader = csv.reader(inputFile, delimiter=',')
+    headers = reader.next()
+
+    for i, row in enumerate(reader):
+        rowId =  row[ColInd.Id]
+        
+        if int(rowId) % 1000 == 0:
+            print "processing data row: " + rowId
+        
+        data = WeatherData(headers, row, isTest)
+        data.padColumns(padAmount)
+        
+        yield data
+        
+    inputFile.close()
+	
+	
+	
 def processData(inputFile, isTest, padAmount):
     inputFile = open(inputFile.name, 'r')
     reader = csv.reader(inputFile, delimiter=',')
     headers = reader.next()
 
     for i, row in enumerate(reader):
-        rowId =  row[0]
+        rowId =  row[ColInd.Id]
         
         if int(rowId) % 1000 == 0:
             print "processing data row: " + rowId
@@ -61,11 +111,14 @@ def processData(inputFile, isTest, padAmount):
         #DO LEARNING HERE!
         
     inputFile.close()
+	
+	
+	
 class WeatherData(object):
     
     def __init__(self, headers, row, isTest=False):
         
-        self.id = int( row.pop(0) )
+        self.id = int( row.pop(ColInd.Id) )
         if isTest:
             self.expected = None
             headers = headers[1 : len(headers)] # get rid of id header and expected
@@ -85,10 +138,21 @@ class WeatherData(object):
         self.dealWithMissingData()
     
     
+    
+    def getSortedColsArr(self):
+        listIndex    = 1
+        resultArr    = []
+        sortedTupArr = sorted(self.columns.items())
+        for element in sortedTupArr:
+            resultArr.extend(element[listIndex])
+        return resultArr
+	
+    
+    
     def dealWithMissingData(self):
         for value in self.columns.itervalues():
             for index, item in enumerate(value):
-                if item == -99000.0:
+                if item == -99900.0:
                     value[index] = 0
                 elif item == -99901.0:
                     value[index] = 0
@@ -99,6 +163,8 @@ class WeatherData(object):
                 elif item == -999.0:
                     value[index] = 0
     
+	
+	
     def padColumns(self, maxLength):
         for key, value  in self.columns.iteritems():
             padded = [0] * (maxLength - len(value))
