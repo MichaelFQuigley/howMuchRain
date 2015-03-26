@@ -70,9 +70,8 @@ def findMaxColumnDim(index, inputFile):
     
     inputFile.close()
     
-    return maxValue
+    return headers, maxValue
 	
-
 
 def processDataGenerate(inputFile, isTest, padAmount):
     inputFile = open(inputFile.name, 'r')
@@ -86,33 +85,11 @@ def processDataGenerate(inputFile, isTest, padAmount):
             print "processing data row: " + rowId
         
         data = WeatherData(headers, row, isTest)
-        data.padColumns(padAmount)
-        
+
         yield data
         
     inputFile.close()
-	
-	
-	
-def processData(inputFile, isTest, padAmount):
-    inputFile = open(inputFile.name, 'r')
-    reader = csv.reader(inputFile, delimiter=',')
-    headers = reader.next()
-
-    for i, row in enumerate(reader):
-        rowId =  row[ColInd.Id]
-        
-        if int(rowId) % 1000 == 0:
-            print "processing data row: " + rowId
-        
-        data = WeatherData(headers, row, isTest)
-        
-        #DO LEARNING HERE!
-        
-    inputFile.close()
-	
-	
-	
+    
 class WeatherData(object):
     
     def __init__(self, headers, row, isTest=False):

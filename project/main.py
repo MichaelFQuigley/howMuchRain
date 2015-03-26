@@ -2,6 +2,7 @@ import argparse
 import sys
 from dataModel import *
 import simplePerceptron
+from Winnow import Winnow
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
@@ -23,21 +24,23 @@ if __name__ == "__main__":
     trainMax, testMax = 0, 0
 
     print 'finding max for training data'
-    trainMax =  findMaxColumnDim(ColInd.TimeToEnd, args.train)
+    trainHeaders, trainMax =  findMaxColumnDim(ColInd.TimeToEnd, args.train)
 
     print 'finding max for test data'
-    testMax =  findMaxColumnDim(ColInd.TimeToEnd, args.test)
+    testHeaders, testMax =  findMaxColumnDim(ColInd.TimeToEnd, args.test)
     
+    maxDimension = max(trainMax, testMax)
     print 'processing training data'
-
-    maxPad = max(testMax, trainMax)
 
     i = 0
     classifier = simplePerceptron.perceptron(.5, 5)
-    for row in processDataGenerate(args.test, False, maxPad):
+    winnow = Winnow(maxDimension, testHeaders, .05)
+    
+    for row in processDataGenerate(args.test, False):
         classifier.trainOnExample(row.getSortedColsArr(), row.expected)
+        winnow.train(row)
         
-    for row in processDataGenerate(args.test, False, maxPad):
+    for row in processDataGenerate(args.test, False):
         if i % 1000 == 0:
             print classifier.getPredictionFromVec(row.getSortedColsArr())
         i += 1
