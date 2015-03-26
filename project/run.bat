@@ -1,1 +1,1 @@
-python main.py --test test_2014.csv --train test_2014.csv --output testOut.csv
+python main.py --test devData.csv --train devData.csv --output testOut.csv
