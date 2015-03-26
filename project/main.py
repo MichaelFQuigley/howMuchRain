@@ -24,25 +24,27 @@ if __name__ == "__main__":
     trainMax, testMax = 0, 0
 
     print 'finding max for training data'
-    trainHeaders, trainMax =  findMaxColumnDim(ColInd.TimeToEnd, args.train)
+    trainHeaders = getHeaders(args.train)
 
     print 'finding max for test data'
-    testHeaders, testMax =  findMaxColumnDim(ColInd.TimeToEnd, args.test)
+    testHeaders =   getHeaders(args.test)
     
     maxDimension = max(trainMax, testMax)
     print 'processing training data'
 
     i = 0
     classifier = simplePerceptron.perceptron(.5, 5)
-    winnow = Winnow(maxDimension, testHeaders, .05)
+    winnow = Winnow(testHeaders, .05)
     
     for row in processDataGenerate(args.test, False):
-        classifier.trainOnExample(row.getSortedColsArr(), row.expected)
+        #classifier.trainOnExample(row.getSortedColsArr(), row.expected)
         winnow.train(row)
         
     for row in processDataGenerate(args.test, False):
-        if i % 1000 == 0:
-            print classifier.getPredictionFromVec(row.getSortedColsArr())
-        i += 1
-
-
+        #if i % 1000 == 0:
+            #print classifier.getPredictionFromVec(row.getSortedColsArr())
+        #i += 1
+        print 'predicted: ' + str(winnow.predict(row))
+        print 'real: '  + str(row.expected)
+        print '\n'
+        print raw_input('press enter')

@@ -54,26 +54,12 @@ def makeDevData(inputfile, amount):
 
 	
 
-def findMaxColumnDim(index, inputFile):
-    reader   = csv.reader(inputFile, delimiter=',')
-    maxValue = 0
-    headers  = reader.next()
-
-    for i, row in enumerate(reader):
-        rowId =  int(row[ColInd.Id])
-        
-        if rowId % 1000 == 0:
-            print "Finding max column dimension for row: " + str(rowId)
-        
-        firstColumn = row[index].split(' ')
-        maxValue = max(maxValue, len(firstColumn))
-    
-    inputFile.close()
-    
-    return headers, maxValue
+def getHeaders(inputFile):
+	reader   = csv.reader(inputFile, delimiter=',')
+	headers  = reader.next()
+	return headers
 	
-
-def processDataGenerate(inputFile, isTest, padAmount):
+def processDataGenerate(inputFile, isTest):
     inputFile = open(inputFile.name, 'r')
     reader = csv.reader(inputFile, delimiter=',')
     headers = reader.next()
