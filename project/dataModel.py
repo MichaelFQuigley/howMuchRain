@@ -73,7 +73,7 @@ def findMaxColumnDim(index, inputFile):
     return headers, maxValue
 	
 
-def processDataGenerate(inputFile, isTest, padAmount):
+def processDataGenerate(inputFile, isTest):
     inputFile = open(inputFile.name, 'r')
     reader = csv.reader(inputFile, delimiter=',')
     headers = reader.next()
