@@ -36,15 +36,7 @@ if __name__ == "__main__":
     print 'processing training data'
 
     i = 0
-    classifier = simplePerceptron.perceptron(.5, 5)
     winnow = Winnow(maxDimension, testHeaders, .05)
 
     for row in processDataGenerate(args.test, False):
-        classifier.trainOnExample(row.getSortedColsArr(), row.expected)
         winnow.train(row)
-        
-    for row in processDataGenerate(args.test, False):
-        if i % 1000 == 0:
-            print classifier.getPredictionFromVec(row.getSortedColsArr())
-        i += 1
-
