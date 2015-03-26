@@ -106,7 +106,6 @@ def processData(inputFile, isTest, padAmount):
             print "processing data row: " + rowId
         
         data = WeatherData(headers, row, isTest)
-        data.padColumns(padAmount)
         
         #DO LEARNING HERE!
         
@@ -163,9 +162,3 @@ class WeatherData(object):
                 elif item == -999.0:
                     value[index] = 0
     
-	
-	
-    def padColumns(self, maxLength):
-        for key, value  in self.columns.iteritems():
-            padded = [0] * (maxLength - len(value))
-            self.columns[key] = value + padded
