@@ -60,7 +60,6 @@ def getHeaders(inputFile):
 	return headers
 	
 def processDataGenerate(inputFile, isTest):
-    inputFile = open(inputFile.name, 'r')
     reader = csv.reader(inputFile, delimiter=',')
     headers = reader.next()
 
@@ -124,4 +123,5 @@ class WeatherData(object):
                     value[index] = 0
                 elif item == -999.0:
                     value[index] = 0
-    
+                elif item == 999.0:
+                    value[index] = 0
