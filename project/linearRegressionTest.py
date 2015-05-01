@@ -23,12 +23,15 @@ def sanitizeWeatherDataExample(example):
 
     
 inputFile = open(devFilename, 'r')
+#needs to match current number of columns in examples
+#sanitizeWeatherDataExample may change current dim num, so if you add dims, then make sure you update this value
 currDim_num = maxDim_num - len(omitCols) + 1
 print currDim_num
 linReg = linearRegressor(currDim_num)
 i = 0
 
 mistakeCount = 0.0
+#iterates up to this number of examples
 totalElements = 180000
 
 for ex in processDataGenerate(inputFile, False):
@@ -38,9 +41,9 @@ for ex in processDataGenerate(inputFile, False):
     example = sanitizeWeatherDataExample(ex)
     linReg.trainOnExample(example)
     prediction = linReg.predictOnExample(example)
-
     if (prediction != 0.0 and example.expected == 0.0) or (prediction == 0.0 and example.expected != 0.0):
         mistakeCount += 1
+    #print stuff if they are both nonzero
     elif prediction != 0.0 and i % 100 == 0:
         print "id: " + str(example.id) + " prediction: " + str(prediction) + " expected: " + str(example.expected) + " timesRR: " + str(example.columns['TimeToEndTimesRR1'])
 print "accuracy = " + str(1.0 - float(mistakeCount) / float(totalElements))
