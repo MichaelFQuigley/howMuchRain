@@ -3,6 +3,8 @@
 #cols is a string array of column names to remove
 #returns new data  with removed cols
 #data is dictionary of data
+from math import *
+
 def removeColsFromData(data, cols):
     if data != None:
         for col_name in cols:
@@ -27,3 +29,10 @@ def meanOfCol(col):
 def productOfCols(colA, colB):
     minLength = min(len(colA), len(colB))
     return [colA[i] * colB[i] for i in range(minLength)]
+
+def logOfCol(colA):
+    return [(log(colA[i] + 0.00001)
+              if colA[i] >= 0 else log(-colA[i])) 
+                  for i in range(len(colA))]
+            
+            

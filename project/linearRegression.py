@@ -6,11 +6,12 @@ from math import *
 #right now, assumes that each value for a column is a one element list
 class linearRegressor:
     def __init__(self):
-        self.w = None
-        self.learnRate = 0.005
-        self.t = 0.0
-        self.C = 0.5
-        self.dim_num = 0
+        self.w         = None
+        self.learnRate = 0.00005
+        self.t         = 0.0
+        self.C         = 500000.0
+        self.dim_num   = 0
+        self.b         = 0.0
         
     def initW(self, dim_num):
         self.dim_num = dim_num
@@ -18,7 +19,8 @@ class linearRegressor:
         
     def predictOnExample(self, example):
         sortedExampleCols = example.getSortedColsArr()
-        return sum([self.w[i] * sortedExampleCols[i] for i in range(self.dim_num)])
+        result = sum([self.w[i]* sortedExampleCols[i] for i in range(self.dim_num)])
+        return result
         
     #expects WeatherData object
     def trainOnExample(self, example):
@@ -27,5 +29,6 @@ class linearRegressor:
         prediction = self.predictOnExample(example)
         sortedExampleCols = example.getSortedColsArr()
         self.w = [(self.w[j] - self.learnRate * (prediction - example.expected) * sortedExampleCols[j]) for j in range(self.dim_num)]
+        self.b   = self.b + self.learnRate * example.expected
         self.learnRate /= (1.0 + self.learnRate * float(self.t) / self.C)
         self.t += 1.0
