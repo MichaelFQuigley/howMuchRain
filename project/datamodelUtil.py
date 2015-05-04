@@ -5,7 +5,6 @@
 #data is dictionary of data
 
 from dataModel import *
-import numpy as np
 from math import *
 
 def removeColsFromData(data, cols):
@@ -42,6 +41,8 @@ def flatten(dictionary):
     return flattenList
 
 def processData(csvFile, isTest, headers = None):
+    import numpy as np
+
     allData = []
     y = []
     medians = None
