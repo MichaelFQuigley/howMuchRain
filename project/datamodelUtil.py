@@ -3,8 +3,10 @@
 #cols is a string array of column names to remove
 #returns new data  with removed cols
 #data is dictionary of data
+
 from dataModel import *
 import numpy as np
+from math import *
 
 def removeColsFromData(data, cols):
     if data != None:
@@ -65,3 +67,10 @@ def processData(csvFile, isTest, headers = None):
                 data[i] = medians[i]
     
     return np.array(allData), np.array(y)
+
+def logOfCol(colA):
+    return [(log(colA[i] + 0.00001)
+              if colA[i] >= 0 else log(-colA[i])) 
+                  for i in range(len(colA))]
+            
+            
