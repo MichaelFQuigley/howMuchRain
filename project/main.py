@@ -3,8 +3,14 @@ import sys
 from dataModel import *
 import simplePerceptron
 import tests
-from Winnow import Winnow
+import msvcrt as m
+from datamodelUtil import *
+from sklearn.cross_validation import KFold
+from sklearn import svm
+from evaluateSVM import *
 
+def wait():
+    m.getch()
         
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
@@ -26,28 +32,17 @@ if __name__ == "__main__":
 
     trainMax, testMax = 0, 0
 
-    print 'finding max for training data'
-    trainHeaders = getHeaders(args.train)
 
     print 'finding max for test data'
 
-    testHeaders =   getHeaders(args.test)
-
+    #testHeaders =   getHeaders(args.test)
     print 'processing training data'
-
-    i = 0
-    classifier = simplePerceptron.perceptron(.5, 5)
-    winnow = Winnow(testHeaders, .05)
     
-    for row in processDataGenerate(args.test, False):
-        #classifier.trainOnExample(row.getSortedColsArr(), row.expected)
-        winnow.train(row)
-        
-    for row in processDataGenerate(args.test, False):
-        #if i % 1000 == 0:
-            #print classifier.getPredictionFromVec(row.getSortedColsArr())
-        #i += 1
-        print 'predicted: ' + str(winnow.predict(row))
-        print 'real: '  + str(row.expected)
-        print '\n'
-        print raw_input('press enter')
+    x, y = processData(args.train, False)
+    print 'There is ' + str(len (x)) + ' examples'
+    
+    validateLinearSvm(x,y)
+    validatePolySvm(x,y)
+    validateRBFSvm(x,y)
+    print 'done'
+                

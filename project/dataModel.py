@@ -59,9 +59,11 @@ def getHeaders(inputFile):
 	headers  = reader.next()
 	return headers
 	
-def processDataGenerate(inputFile, isTest):
+def processDataGenerate(inputFile, isTest, headers = None):
     reader = csv.reader(inputFile, delimiter=',')
-    headers = reader.next()
+    
+    if headers is None:
+     headers = reader.next()
 
     for i, row in enumerate(reader):
         rowId =  row[ColInd.Id]
@@ -76,52 +78,62 @@ def processDataGenerate(inputFile, isTest):
     inputFile.close()
     
 class WeatherData(object):
-    
-    def __init__(self, headers, row, isTest=False):
-        
-        self.id = int( row.pop(ColInd.Id) )
-        if isTest:
-            self.expected = None
-            headers = headers[1 : len(headers)] # get rid of id header and expected
-        else:
-            self.expected = float (row[len(row) - 1])
-            headers = headers[1 : len(headers) - 1] # get rid of id header and expected
-        
-        self.columns = {}
-        
-        for header, column in itertools.izip(headers, row):
-            self.columns[header] = column.split(' ')
-        
-        #convert strings to floats
-        for key, value in self.columns.iteritems():
-            self.columns[key] = map(float, value)
-        
-        self.dealWithMissingData()
-    
-    
-    
-    def getSortedColsArr(self):
-        listIndex    = 1
-        resultArr    = []
-        sortedTupArr = sorted(self.columns.items())
-        for element in sortedTupArr:
-            resultArr.extend(element[listIndex])
-        return resultArr
+
+	def __init__(self, headers, row, isTest=False):
+		self.id = int( row.pop(ColInd.Id) )
+		if isTest:
+			self.expected = None
+			headers = headers[1 : len(headers)] # get rid of id header and expected
+		else:
+			self.expected = float (row[len(row) - 1]) 
+			headers = headers[1 : len(headers) - 1] # get rid of id header and expected
+		
+		
+		self.listOfData = [] 
+		
+
+		for header, column in itertools.izip(headers, row):
+			temp = column.split(' ')
+			for i in xrange(len(temp)):
+				nextItem = float(temp[i])
+				if self.isErrorValue(nextItem):
+					nextItem = None
+				if len(self.listOfData) <= i:
+					self.listOfData.append({header: float(nextItem) })
+				else:
+					(self.listOfData[i])[header] = nextItem
 	
-    
-    
-    def dealWithMissingData(self):
-        for value in self.columns.itervalues():
-            for index, item in enumerate(value):
-                if item == -99900.0:
-                    value[index] = 0
-                elif item == -99901.0:
-                    value[index] = 0
-                elif item == -99903.0:
-                    value[index] = 0
-                elif math.isnan(item):
-                    value[index] = 0
-                elif item == -999.0:
-                    value[index] = 0
-                elif item == 999.0:
-                    value[index] = 0
+			
+	def getSortedColsArr(self):
+		listIndex    = 1
+		resultArr    = []
+		sortedTupArr = sorted(self.columns.items())
+		for element in sortedTupArr:
+			resultArr.extend(element[listIndex])
+		return resultArr
+	
+	def fixRR3(self):
+		for data in self.listOfData:
+			
+			data['Kdp'] = math.exp( math.log(abs(data['RR3'] / 40.6)) / 0.866)
+
+			if data['RR3'] < 0:
+				data['Kdp'] *= -1
+
+
+	def isErrorValue(self, item):
+		
+		if item == -99900.0:
+			return True
+		elif item == -99901.0:
+			return True
+		elif item == -99903.0:
+			return True
+		elif math.isnan(item):
+			return True
+		elif item == -999.0:
+			return True
+		elif item == 999.0:
+			return True
+		
+		return False

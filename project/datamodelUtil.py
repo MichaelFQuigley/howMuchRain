@@ -3,6 +3,9 @@
 #cols is a string array of column names to remove
 #returns new data  with removed cols
 #data is dictionary of data
+from dataModel import *
+import numpy as np
+
 def removeColsFromData(data, cols):
     if data != None:
         for col_name in cols:
@@ -27,3 +30,38 @@ def meanOfCol(col):
 def productOfCols(colA, colB):
     minLength = min(len(colA), len(colB))
     return [colA[i] * colB[i] for i in range(minLength)]
+
+def flatten(dictionary):
+    
+    flattenList = []
+    for key in dictionary:
+        flattenList.append(dictionary[key])
+        
+    return flattenList
+
+def processData(csvFile, isTest, headers = None):
+    allData = []
+    y = []
+    medians = None
+    for row in processDataGenerate(csvFile, isTest, headers):
+        
+        if medians == None:
+            medians = [0] * len(row.listOfData[0])
+            
+        tempY = -1 if int(row.expected * 10) % 2 == 0  else 1
+            
+        for data in row.listOfData:
+            flattenedList = flatten(data)
+            allData.append(flattenedList)
+            y.append(tempY)
+            medians = [ m if f is None else f + m for f,m in zip(flattenedList, medians)]
+                
+        
+    medians = [ m / float(len (medians)) for m in medians]
+    
+    for data in allData:
+        for i in xrange(len(data)):
+            if data[i] == None:
+                data[i] = medians[i]
+    
+    return np.array(allData), np.array(y)
