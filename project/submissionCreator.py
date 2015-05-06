@@ -22,3 +22,5 @@ class submissionCreator:
         
     def close(self):
         self.outFile.close()
+        
+        

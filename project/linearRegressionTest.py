@@ -2,11 +2,15 @@
 from linearRegression import *
 from datamodelUtil import *
 import mistakeMetric
+from submissionCreator import submissionCreator
 
-devFilename = 'train_2013.csv'
+
+trainFilename = 'train_2013.csv'
+testFilename  = 'test_2014.csv'
 
 omitCols = ['ReflectivityQC', 'HybridScan', 'Velocity', 'Reflectivity', 'Composite']
 omitCols.extend([ 'HydrometeorType', 'DistanceToRadar', 'Zdr', 'RhoHV', 'Kdp'])
+
 #does preprocessing on data, expects WeatherData object
 def sanitizeWeatherDataExample(example):
     newExampleCols = removeColsFromData(example.columns, omitCols)
@@ -23,7 +27,10 @@ def sanitizeWeatherDataExample(example):
 def sanitizeWeatherDataExampleSquared(example):
     newExampleCols = {}
     example.dealWithMissingData()
-    newExampleCols = removeColsFromData(example.columns, ['Kdp', 'HydrometeorType', 'DistanceToRadar'])
+    newExampleCols = removeColsFromData(example.columns, ['Kdp', 'HydrometeorType',  'DistanceToRadar', 'Zdr'])
+    newExampleCols['RR1'] =[i / 60.0 for i in newExampleCols['RR1']]
+    newExampleCols['RR2'] =[i / 60.0 for i in newExampleCols['RR2']]
+    newExampleCols['RR3'] =[i / 60.0 for i in newExampleCols['RR3']]
     newExampleCols = {col : [medianOfCol(example.columns[col])] for col in example.columns}
     
     #newExampleCols['Kdp'] = [(0.0 if newExampleCols['RR3'][0] < 0.1 else (log(newExampleCols['RR3'][0] / 40.6)/0.866))]
@@ -42,24 +49,44 @@ def sanitizeWeatherDataExampleSquared(example):
     
     return example
     
-inputFile = open(devFilename, 'r')
+inputFile = open(trainFilename, 'r')
 linReg = linearRegressor()
 i = 0
 
-mistakeCount = 0.0
+mistakeCountA = 0.0
+mistakeCountB = 0.0
 #iterates up to this number of examples
-totalElements = 10000
+totalElements = -1
+trainElements = 100000
 
+#training
 for ex in processDataGenerate(inputFile, False):
     example = sanitizeWeatherDataExampleSquared(ex)
     prediction = linReg.predictOnExample(example)
-    if i >= totalElements:
-        if mistakeMetric.difference(prediction, example.expected, 1.0):
-            mistakeCount += 1
-    else:
-        linReg.trainOnExample(example)
+    prediction = prediction if prediction > 0.2 else 0.0
+    if trainElements != -1 and i >= trainElements:
+        if mistakeMetric.difference(prediction, example.expected, 0.5):
+            mistakeCountA += 1
+        if mistakeMetric.zeroNonZero(prediction, example.expected):
+            mistakeCountB += 1
+    linReg.trainOnExample(example)
+    if totalElements != -1 and i >= totalElements:
+        break
     if i % 1000 == 0:
         print "id: " + str(example.id) + " prediction: " + str(prediction) + " expected: " + str(example.expected)# + " timesRR: " + str(example.columns['TimeToEndTimesRR1'])
   
     i += 1
-print "accuracy = " + str(1.0 - float(mistakeCount) / float(i - totalElements))
+    
+#testing
+
+inputFile    = open(testFilename, 'r')
+subMission = submissionCreator('LinSubmission5.csv')
+for ex in processDataGenerate(inputFile, True):
+    example    = sanitizeWeatherDataExampleSquared(ex)
+    prediction = linReg.predictOnExample(example)
+    prediction = prediction if prediction > 0.2 else 0.0
+    subMission.addRow(example.id, prediction)
+
+subMission.close()
+print "accuracy diff = " + str(1.0 - float(mistakeCountA) / float(i - trainElements))
+print "accuracy Z non Z = " + str(1.0 - float(mistakeCountB) / float(i - trainElements))
