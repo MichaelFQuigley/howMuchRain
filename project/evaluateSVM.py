@@ -9,16 +9,15 @@ import numpy as np
 from sklearn.metrics import classification_report
 from datamodelUtil import crossValidate
 
-def validateLinearSvm(x, y):
-    xTrain, xTest, yTrain, yTest = train_test_split(x, y)
+def validateLinearSvm(xTrain, xTest, yTrain, yTest):
+     
     params = {'kernel': ['linear'], 'C': [1e0, 1e1, 1e2, 1e3, 1e4, 1e5]}
     print 'validating linear svm'
     svc = svm.SVC(class_weight='auto')
     crossValidate(svc, params, xTrain, xTest, yTrain, yTest)
     
     
-def validatePolySvm(x, y): 
-    xTrain, xTest, yTrain, yTest = train_test_split(x, y)
+def validatePolySvm(xTrain, xTest, yTrain, yTest): 
 
     params = {'kernel': ['poly'],
                   'C': [1e0, 1e1, 1e2, 1e3],
@@ -29,12 +28,32 @@ def validatePolySvm(x, y):
     svc = svm.SVC(class_weight='auto')
     crossValidate(svc, params, xTrain, xTest, yTrain, yTest)
     
-def validateRBFSvm(x, y): 
-    xTrain, xTest, yTrain, yTest = train_test_split(x, y)
+def validateRBFSvm(xTrain, xTest, yTrain, yTest, c, gamma): 
+
     params = {'kernel': ['rbf'],
-              'C': [1e0, 1e1, 1e2, 1e3, 1e4, 1e5],
-              'gamma': [1e-4, 1e-3, 1e-2, 1e-1]}
+              'C': [c],
+              'gamma': [gamma]}
     
     print 'validating RBF svm'
+
+    return crossValidateSVM(params, xTrain, xTest, yTrain, yTest)
+
+
+def crossValidateSVM(params, xTrain, xTest, yTrain, yTest):
+    
+    tenFold = StratifiedKFold(yTrain, n_folds =10)
     svc = svm.SVC(class_weight='auto')
-    crossValidate(svc, params, xTrain, xTest, yTrain, yTest)
+    
+    gridSearch = GridSearchCV(svc, params, n_jobs= 4, cv=tenFold)
+    gridSearch.fit(xTrain, yTrain)
+
+    print "Best Params:", gridSearch.best_params_
+    print "Best Score:", gridSearch.best_score_
+    
+    predictions = gridSearch.predict(xTest)
+    accuracy = len(np.where(predictions == yTest)[0]) / float(len(predictions))
+    print "Accuracy:", accuracy
+    print classification_report(yTest, predictions)
+    
+    return predictions    
+
