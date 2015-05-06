@@ -50,7 +50,7 @@ $$w^{T + 1}_j = w^{T}_j - \gamma^T(w^{T} \cdot x_{i} - y_i)x_{ij}$$
 Where $\gamma^T$ is the learning rate for a specific iteration, $i$ is the example number, and $j$ is the feature number. The prediction was of the form:
 $$w^{T} \cdot x_{i}.$$
 The learning rate was changed after every iteration using the following and was initialized as $\gamma_0$:
-$$\gamma^{T + 1} = \frac{\gamma^{T}}{1 + \gamma^{T} / C}$$
+$$\gamma^{T + 1} = \frac{\gamma_{0}}{1 + \gamma^{T} / C}$$
 Where C is a hyper parameter.
 
 
@@ -86,6 +86,23 @@ See Table \ref{table:linAcc}.
           \label{table:linAcc}}
   \end{table}
 
+As stated, most of the data is a zero. One observation that was made was that most of the non-zero predictions that were very close to zero had a zero label. One addition to the third linear regression experiment was to set these small non-zero predictions to zero if they were less than some delta (0.2). The results of this addition are shown in table \ref{table:linAccModified}.
+  \begin{table}[h]
+        {\centering
+          \begin{tabular}{|c|c|c|c|c|}
+            \hline
+             $\gamma_0$ & C & Accuracy Metric & Accuracy (\%) & Kaggle Ranking\\
+            \hline
+                0.0007 &   0.05        & 0-non0 & 85.5 & 285/305 \\
+             \hline
+                - &   -        & $abs(a - b) > delta$ & 92.15 & - \\
+                  \hline
+          \end{tabular}
+          \caption{Linear Regression Results}          
+          \label{table:linAccModified}}
+  \end{table}
+
+\section{Adaboosted Tree Ensemble}
 
 
 

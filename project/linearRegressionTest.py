@@ -32,8 +32,7 @@ def sanitizeWeatherDataExampleSquared(example):
     newExampleCols['RR2'] =[i / 60.0 for i in newExampleCols['RR2']]
     newExampleCols['RR3'] =[i / 60.0 for i in newExampleCols['RR3']]
     newExampleCols = {col : [medianOfCol(example.columns[col])] for col in example.columns}
-    
-    #newExampleCols['Kdp'] = [(0.0 if newExampleCols['RR3'][0] < 0.1 else (log(newExampleCols['RR3'][0] / 40.6)/0.866))]
+
     for colI in example.columns:
         for colJ in example.columns:
             if colI == colJ:
@@ -48,7 +47,19 @@ def sanitizeWeatherDataExampleSquared(example):
     example.columns = newExampleCols
     
     return example
-    
+   
+
+def createLinRegSubmission(inputFile, submissionFilename):
+    subMission = submissionCreator(submissionFilename)
+    for ex in processDataGenerate(inputFile, True):
+        example    = sanitizeWeatherDataExample(ex)
+        prediction = linReg.predictOnExample(example)
+        prediction = prediction if prediction > 0.2 else 0.0
+        subMission.addRow(example.id, prediction)
+
+    subMission.close()
+
+   
 inputFile = open(trainFilename, 'r')
 linReg = linearRegressor()
 i = 0
@@ -61,7 +72,7 @@ trainElements = 100000
 
 #training
 for ex in processDataGenerate(inputFile, False):
-    example = sanitizeWeatherDataExampleSquared(ex)
+    example = sanitizeWeatherDataExample(ex)
     prediction = linReg.predictOnExample(example)
     prediction = prediction if prediction > 0.2 else 0.0
     if trainElements != -1 and i >= trainElements:
@@ -78,15 +89,7 @@ for ex in processDataGenerate(inputFile, False):
     i += 1
     
 #testing
+#createLinRegSubmission(open(testFilename, 'r'), 'LinSubmissionModified.csv')
 
-inputFile    = open(testFilename, 'r')
-subMission = submissionCreator('LinSubmission5.csv')
-for ex in processDataGenerate(inputFile, True):
-    example    = sanitizeWeatherDataExampleSquared(ex)
-    prediction = linReg.predictOnExample(example)
-    prediction = prediction if prediction > 0.2 else 0.0
-    subMission.addRow(example.id, prediction)
-
-subMission.close()
 print "accuracy diff = " + str(1.0 - float(mistakeCountA) / float(i - trainElements))
 print "accuracy Z non Z = " + str(1.0 - float(mistakeCountB) / float(i - trainElements))

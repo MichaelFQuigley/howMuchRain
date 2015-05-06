@@ -7,9 +7,9 @@ from math import *
 class linearRegressor:
     def __init__(self):
         self.w             = None
-        self.learnRate   = 0.007
+        self.learnRate   = 0.0007
         self.t               = 0.0
-        self.C              = 0.0002
+        self.C              = 0.05
         self.dim_num   = 0
         self.b              = 0.0
         
