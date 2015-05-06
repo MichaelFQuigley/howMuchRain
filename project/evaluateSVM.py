@@ -9,15 +9,14 @@ from sklearn.grid_search import GridSearchCV
 import numpy as np
 from sklearn.metrics import classification_report
 
-def validateLinearSvm(x, y):
-    xTrain, xTest, yTrain, yTest = train_test_split(x, y)
+def validateLinearSvm(xTrain, xTest, yTrain, yTest):
+     
     params = {'kernel': ['linear'], 'C': [1e0, 1e1, 1e2, 1e3, 1e4, 1e5]}
     print 'validating linear svm'
     crossValidateSVM(params, xTrain, xTest, yTrain, yTest)
     
     
-def validatePolySvm(x, y): 
-    xTrain, xTest, yTrain, yTest = train_test_split(x, y)
+def validatePolySvm(xTrain, xTest, yTrain, yTest): 
 
     params = {'kernel': ['poly'],
                   'C': [1e0, 1e1, 1e2, 1e3],
@@ -28,15 +27,15 @@ def validatePolySvm(x, y):
     
     crossValidateSVM(params, xTrain, xTest, yTrain, yTest)
     
-def validateRBFSvm(x, y): 
-    xTrain, xTest, yTrain, yTest = train_test_split(x, y)
+def validateRBFSvm(xTrain, xTest, yTrain, yTest, c, gamma): 
+
     params = {'kernel': ['rbf'],
-              'C': [1e0, 1e1, 1e2, 1e3, 1e4, 1e5],
-              'gamma': [1e-4, 1e-3, 1e-2, 1e-1]}
+              'C': [c],
+              'gamma': [gamma]}
     
     print 'validating RBF svm'
     
-    crossValidateSVM(params, xTrain, xTest, yTrain, yTest)
+    return crossValidateSVM(params, xTrain, xTest, yTrain, yTest)
 
 
 def crossValidateSVM(params, xTrain, xTest, yTrain, yTest):
@@ -53,5 +52,7 @@ def crossValidateSVM(params, xTrain, xTest, yTrain, yTest):
     predictions = gridSearch.predict(xTest)
     accuracy = len(np.where(predictions == yTest)[0]) / float(len(predictions))
     print "Accuracy:", accuracy
-    print classification_report(yTest, predictions)    
+    print classification_report(yTest, predictions)
+    
+    return predictions    
 

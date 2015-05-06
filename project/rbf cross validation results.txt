@@ -1,0 +1,10 @@
+validating RBF svm
+Best Params: {'kernel': 'rbf', 'C': 10.0, 'gamma': 0.01}
+Best Score: 0.87163526245
+Accuracy: 0.87790110999
+precision recall f1-score support
+
+-1 0.90 0.97 0.93 1737
+1 0.51 0.22 0.30 245
+
+avg / total 0.85 0.88 0.86 1982

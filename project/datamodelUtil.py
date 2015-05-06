@@ -6,6 +6,7 @@
 
 from dataModel import *
 from math import *
+from sklearn.cross_validation import train_test_split
 
 def removeColsFromData(data, cols):
     if data != None:
@@ -40,25 +41,39 @@ def flatten(dictionary):
         
     return flattenList
 
-def processData(csvFile, isTest, headers = None):
+def processData(csvFile, isTest, headers = None, hasZeros = True):
     import numpy as np
 
     allData = []
     y = []
     medians = None
+    
+    zeroCount = 0
+    
     for row in processDataGenerate(csvFile, isTest, headers):
+        
+        if not hasZeros and row.expected == 0: continue
+
         
         if medians == None:
             medians = [0] * len(row.listOfData[0])
-            
-        tempY = -1 if int(row.expected * 10) % 2 == 0  else 1
-            
+        
+        tempY = int(row.expected * 10)
+        
+        if tempY >= 256: continue
+        
         for data in row.listOfData:
             flattenedList = flatten(data)
             allData.append(flattenedList)
             y.append(tempY)
+            
+            zeroCount += 1 if row.expected == 0 else 0
+            
             medians = [ m if f is None else f + m for f,m in zip(flattenedList, medians)]
+        
+        if len(allData) >= 25000: break
                 
+    print "number of zeros\n", zeroCount
         
     medians = [ m / float(len (medians)) for m in medians]
     
@@ -67,7 +82,7 @@ def processData(csvFile, isTest, headers = None):
             if data[i] == None:
                 data[i] = medians[i]
     
-    return np.array(allData), np.array(y)
+    return train_test_split(np.array(allData), np.array(y))
 
 def logOfCol(colA):
     return [(log(colA[i] + 0.00001)

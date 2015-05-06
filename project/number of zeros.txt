@@ -1,0 +1,25 @@
+number of zeros
+6630405
+There is 8937958 examples
+74.18254818382454
+
+number of zeros
+0
+There is 2307553 examples
+
+no zeros
+
+Training with 1560 examples
+Testing with520 examples
+validating RBF svm
+Best Params: {'kernel': 'rbf', 'C': 10.0, 'gamma': 0.001}
+Best Score: 0.689743589744
+Accuracy: 0.707692307692
+             precision    recall  f1-score   support
+
+         -1       0.75      0.68      0.71       274
+          1       0.67      0.74      0.71       246
+
+avg / total       0.71      0.71      0.71       520
+
+done
