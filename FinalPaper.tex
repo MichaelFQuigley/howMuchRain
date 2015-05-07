@@ -1,4 +1,4 @@
-\documentclass[pdftex,a4paper,12pt]{article}
+\documentclass[pdftex,a4paper,11pt]{article}
 \usepackage{amsmath}
 \usepackage{listings}
 \usepackage{mathtools}
@@ -42,7 +42,7 @@ contain error values. The error values are as follows: "99000",
 "999.0" which indicate the value for that specific element in the row is invalid.
 
 \section{Linear Regression}
-The linear regression update was of the form:
+The linear regression update \cite{seber2012linear} was of the form:
 $$w^{T + 1}_j = w^{T}_j - \gamma^T(w^{T} \cdot x_{i} - y_i)x_{ij}$$
 Where $\gamma^T$ is the learning rate for a specific iteration, $i$ is the example number, and $j$ is the feature number. The prediction was of the form:
 $$w^{T} \cdot x_{i}.$$
@@ -67,15 +67,11 @@ Accuracy was measured after the first 100000 elements of the train set. The na{\
         {\centering
           \begin{tabular}{|c|c|c|c|c|}
             \hline
-             $\gamma_0$ & C & Accuracy Metric & Accuracy (\%) & Kaggle Ranking\\
+             $\gamma_0$ & C & 0-non0 Acc. (\%) & $abs(a - b) > delta$ Acc. (\%) & Kaggle Ranking\\
             \hline
-                0.0007 &   0.05        & 0-non0 & 49.33 & 285/308  \\
+                0.0007 &   0.05        &  49.33  & 92.5 & 285/308  \\
              \hline
-                - &   -        & $abs(a - b) > delta$ & 92.5 & - \\
-                  \hline
-                0.01 &  100         &  0-non0  & 48.2 & 292/308   ouch... \\
-          \hline
-                - &  -         & $abs(a - b) > delta$ & 86.4 & - \\
+                0.01 &  100         &  48.2 & 86.4 & 292/308 \\
              \hline
           \end{tabular}
           \caption{Linear Regression Results}          
@@ -87,12 +83,10 @@ As stated, most of the data is a zero. One observation that was made was that mo
         {\centering
           \begin{tabular}{|c|c|c|c|c|}
             \hline
-             $\gamma_0$ & C & Accuracy Metric & Accuracy (\%) & Kaggle Ranking\\
+             $\gamma_0$ & C & 0-non0 Acc. (\%) & $abs(a - b) > delta$ Acc. (\%) & Kaggle Ranking\\
             \hline
-                0.0007 &   0.05        & 0-non0 & 85.5 & 287/308 \\
-             \hline
-                - &   -        & $abs(a - b) > delta$ & 92.15 & - \\
-                  \hline
+                0.0007 &   0.05        & 85.5 & 92.15 & 287/308 \\
+            \hline
           \end{tabular}
           \caption{Modified Linear Regression Results}          
           \label{table:linAccModified}}
@@ -144,16 +138,11 @@ We used a 10-fold cross validation for each bit to find the best $\gamma$ and $C
 
 \begin{table}[h]
 {\centering
-\begin{tabular}{|c|c|c|} \hline
-	Bit 		&			C			&			$\gamma$		\\	\hline
-0 (LSB)		&			1.0		&			0.1					\\	\hline
-1 				&			1.0		&			0.1				  \\	\hline
-2 				&			1.0		&			0.1					\\	\hline
-3 				&			100.0		&		0.01				\\	\hline
-4 				&			100.0		&		0.01				\\	\hline
-5 				&			1000.0	&		0.01				\\	\hline
-6 				&			1.0		&			0.1					\\	\hline
-7(MSB) 		&			1.0		&			0.1					\\	\hline
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|} \hline
+Bit			&	0 (LSB)	&	1	&	2	&	3	&	4	&	5	&	6	&	7(MSB) 	\\	\hline
+C			&	1	&	1	&	1	&	100	&	100	&	1000	&	1	&	1		\\	\hline
+$\gamma$	&	0.1	&	0.1	&	0.1	&	0.01	&	0.01	&	0.01	&	0.1	&	0.1	\\	\hline
+
 \end{tabular}
 \caption{Validation Results}          
 \label{table:valresults}}
@@ -189,6 +178,11 @@ The following table contains the accuracy of the predicted expected number once 
 \label{table:overallResults}}
 \end{table}
 As \ref{table:overallResults} demonstrates, the bit binary classifiers predict 0 with some degree of performance.   However, being that there only 8 bits, it did predict slightly over than $2^{-8}$.  This would suggest that, to some degree, this technique might be applied to data that was not so sparse.  That is, if the expected values or labels were more evenly distributed.  
+
+\section{Conclusions}
+The typical way to solve this problem is regression.  This seemed to perform reasonably well in comparison to the other algorithms using the selected accuracy metrics. The other methods may have worked better on data that is more uniformly distributed.
+
+If we had more time, we would have tried more transformations such as polynomial kernels. We would have also tried more ensemble methods such as random forests. One of the most significant limiting factors was computing power. We tried running the polynomial kernels, but they took long than 48 hours and never completed. We should have used Amazon's EC2, or the HPC clusters at the University of Utah.
 
 \bibliographystyle{plain}
 \bibliography{final_bib}
