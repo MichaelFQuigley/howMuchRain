@@ -13,13 +13,15 @@
 
 \begin{document}
 \maketitle
-\section{Intro}
+\section{Introduction}
 \subsection{Problem}
 Predict probabilistic distribution of hourly rain given polarimetric radar measurements.
 The project attempts to use the probabilistic distribution of rain over a field using data from
-polarimetric radar. This allows people to avoid putting rain gauges everywhere. A polarimetric
+polarimetric radar. Since this is a cumulative distribution, we decided that the prediction for a certain row in the test data (which is just a total amount of rain in mm for the hour) would be the center of a sigmoid, and the values of this sigmoid would be used to populate the columns in the output file. This allows people to avoid putting rain gauges everywhere. A polarimetric
 radar transmits radio wave pulses in both vertical and horizontal orientations allowing the size
 of a raindrop to be more easily inferred when compared with Doppler radar.
+This problem is traditionally solved using some form of regression.  We have attempted to solve this problem using linear regression, an Ensemble of Decision Trees, and a binary classifier to attempt to predict each bit.
+
 \subsection{Data}
 The data contains derived quantities at a location for a period of an hour from polarimetric
 radar. The data is broken up into nineteen columns: "Time To End", "Distance To Radar",
@@ -39,16 +41,6 @@ contain error values. The error values are as follows: "99000",
 "nan",
 "999.0" which indicate the value for that specific element in the row is invalid.
 
-
-
-
-There were two files provided by Kaggle. The train file was train\_2013.csv and the test file was test\_2014.csv. Each row in the files had an id along with all nineteen other columns. The train file had an additional feature called "expected" that was the actual amount of rain measured at the end of the hour.
-\subsection{Output file}
-Kaggle required another CSV file as the submission. This file had as many rows as the test file. Each row had 70 columns where each column was a number that represented $P(y \le Y)$. The headers of the columns ranged from 0 to 69mm. The value $y$ was the rain accumulation and $Y$ would be the current column's header value. Since this is a cumulative distribution, we decided that the prediction for a certain row in the test file (which is just a total amount of rain in mm for the hour) would be the center of a sigmoid, and the values of this sigmoid would be used to populate the columns in the output file.
-
-
-
-
 \section{Linear Regression}
 The linear regression update was of the form:
 $$w^{T + 1}_j = w^{T}_j - \gamma^T(w^{T} \cdot x_{i} - y_i)x_{ij}$$
@@ -63,26 +55,25 @@ Where C is a hyper parameter.
 
 Since the columns had multiple values, the median of the column values was used as the feature value. If the value was invalid, then the median of the valid elements was used.
 \subsection{Feature Selection}
-Linear regression was a fairly quick algorithm to run on the training set. This means there was a lot of time for experimentation with different feature combinations. The attribute 'HydrometeorType' was dropped. This was just a number that referred to a type of hydrometeor, and there was no obvious reason for this attribute. Keeping it in the set did not seem to improve accuracy by any accuracy metric. Since a distribution over the total amount of rain was the end goal, three new columns were created that were each a product of other columns. These columns roughly represented an estimate for the total amount of rain for a given amount of time. The new columns added were RR1 * TimeToEnd, RR2 * TimeToEnd, and RR3 * TimeToEnd. After this, other attributes were removed individually until accuracy was maximized. The attributes that ended up being removed for the resulting best accuracy were, 'ReflectivityQC', 'HybridScan', 'Velocity', 'Reflectivity', 'Composite', 'HydrometeorType', 'DistanceToRadar', 'Zdr', 'RhoHV', and 'Kdp'. The rain rates and radar quality index seemed to have the most influence on accuracy.
+The attribute 'HydrometeorType' was dropped. This was just a number that referred to a type of hydrometeor, and there was no obvious reason for this attribute. Keeping it in the set did not seem to improve accuracy by any accuracy metric. Since a distribution over the total amount of rain was the end goal, three new columns were created that were each a product of other columns. These columns roughly represented an estimate for the total amount of rain for a given amount of time. The new columns added were RR1 * TimeToEnd, RR2 * TimeToEnd, and RR3 * TimeToEnd. After this, other attributes were removed individually until accuracy was maximized. The attributes that ended up being removed for the resulting best accuracy were, 'ReflectivityQC', 'HybridScan', 'Velocity', 'Reflectivity', 'Composite', 'HydrometeorType', 'DistanceToRadar', 'Zdr', 'RhoHV', and 'Kdp'. The rain rates and radar quality index seemed to have the most influence on accuracy.
 
 
 
 
 \subsection{Metrics for Accuracy}
-Accuracy was measured after the first 100000 elements of the train\_2013.csv train set. The na{\"i}ve metric for accuracy that was initially used was checking to see whether the true label and the prediction were either both non-zero or both zero (0-non0). If one was zero and the other non-zero, then a mistake was counted toward the overall accuracy. This was a good initial metric as it demonstrated that the linear regression algorithm would usually predict zero when the true label was zero, and usually non zero when the true label was non zero. It could be argued that since most of the true labels were zero, a good accuracy could just be achieved by always predicting zero. What is interesting is that most of the true labels that were non zero had a non zero prediction. The problem with this metric is that many of the zero labels also had a very small non zero value. The second metric used for determining accuracy was checking to see whether the difference between the true label and the prediction was greater than some delta ($abs(a - b) > delta$). This delta was chosen to be 0.5.
+Accuracy was measured after the first 100000 elements of the train set. The na{\"i}ve metric for accuracy that was initially used was checking to see whether the true label and the prediction were either both non-zero or both zero (0-non0). If one was zero and the other non-zero, then a mistake was counted toward the overall accuracy. This was a good initial metric as it demonstrated that the linear regression algorithm would usually predict zero when the true label was zero, and usually non zero when the true label was non zero. It could be argued that since most of the true labels were zero, a good accuracy could just be achieved by always predicting zero. What is interesting is that most of the true labels that were non zero had a non zero prediction. The problem with this metric is that many of the zero labels also had a very small non zero value. The second metric used for determining accuracy was checking to see whether the difference between the true label and the prediction was greater than some delta ($abs(a - b) > delta$). This delta was chosen to be 0.5.
 \subsection{Results}
-See Table \ref{table:linAcc}.
   \begin{table}[h]
         {\centering
           \begin{tabular}{|c|c|c|c|c|}
             \hline
              $\gamma_0$ & C & Accuracy Metric & Accuracy (\%) & Kaggle Ranking\\
             \hline
-                0.0007 &   0.05        & 0-non0 & 49.33 & 285/305 \\
+                0.0007 &   0.05        & 0-non0 & 49.33 & 285/308  \\
              \hline
                 - &   -        & $abs(a - b) > delta$ & 92.5 & - \\
                   \hline
-                0.01 &  100         &  0-non0  & 48.2 & 292/305   ouch... \\
+                0.01 &  100         &  0-non0  & 48.2 & 292/308   ouch... \\
           \hline
                 - &  -         & $abs(a - b) > delta$ & 86.4 & - \\
              \hline
@@ -98,7 +89,7 @@ As stated, most of the data is a zero. One observation that was made was that mo
             \hline
              $\gamma_0$ & C & Accuracy Metric & Accuracy (\%) & Kaggle Ranking\\
             \hline
-                0.0007 &   0.05        & 0-non0 & 85.5 & 285/305 \\
+                0.0007 &   0.05        & 0-non0 & 85.5 & 287/308 \\
              \hline
                 - &   -        & $abs(a - b) > delta$ & 92.15 & - \\
                   \hline
@@ -139,7 +130,7 @@ These results were not deemed worthy of submitting to Kaggle, so we didn't submi
   
 
 \section{Bit Binary Classification}
-Real numbers can be represented in binary.  That means it might be possible to use a binary classifier to predict each bit of the number.  The assumption is the expected value of the data is some linear or non-linear arithmetic combination of the all the features.  Arithmetic operations can be performed at the bit level.  For example, $A$ added to $B$ at the bit level is $A \oplus B = S$, $A \land B = C$ for the sum and carry respectively \cite{lancaster2001excel}.  However, the add operation is not linearly separable because of the $\oplus$ operator.  The relation ship between all the features may also not be linear.  For these reasons we decided to use the RBF kernel which lifts it into an infinite space. This kernel is common in support vector machines (svm).  Our implementation uses a C-Support Vector Classification based of the LIBSVM library \cite{LIBSVM}\cite{scikit-learn}.\\
+Real numbers can be represented in binary.  That means it might be possible to use a binary classifier to predict each bit of the number.  The assumption is the expected value of the data is some linear or non-linear arithmetic combination of the all the features.  Arithmetic operations can be performed at the bit level.  For example, $A$ added to $B$ at the bit level is $A \oplus B = S$, $A \land B = C$ for the sum and carry respectively \cite{lancaster2001excel}.  However, the add operation is not linearly separable because of the $\oplus$ operator.  The relation ship between all the features may also not be linear.  For these reasons we decided to use the RBF kernel which lifts it into an infinite space. This kernel is common in support vector machines (svm).  Our implementation uses a C-Support Vector Classification based of the LIBSVM library \cite{LIBSVM}\cite{scikit-learn}.\\  We used a subset of the training data with 18768 examples to train and 6256 to test. 
 \subsection{Expected value representation}
 The expected values are floating point with one decimal point.  IEEE 754 defines floating points to be represented with 32 bits.  We've multiplied the expected value by ten.  We then restricted the domain with eight bits.  Anything more than eight bits was rejected.  This covered all the data except for abnormally large values.
  \subsection{Best parameters}
@@ -149,25 +140,55 @@ $$K(\textbf{x},\textbf{x'}) = exp(-\frac{||\textbf{x} - \textbf{x'} ||}{\gamma} 
 \mathop{min}_{\textbf{w}, b, \textbf{$\xi$} } \frac{1}{2} \textbf{w}^T\textbf{w} + C\sum {\xi}
 \end{equation}
 subject to $y_i(\textbf{w}\phi(x_i) + b) \geq 1 - \xi_i$ \cite{LIBSVM}\\
-We used a 10-fold cross verification for each bit to find the best $\gamma$ and $C$ parameter.
+We used a 10-fold cross validation for each bit to find the best $\gamma$ and $C$ parameter.
 
 \begin{table}[h]
 {\centering
-\begin{tabular}{|c|c|c|c|c|c|} \hline
-	Bit 		&			C			&			$\gamma$		&		precision			&		recall				&		accuracy			\\	\hline
-0 (LSB)		&			1.0		&			0.1					&	0: 0.87	1: 0.00	&	0: 1.00	1:0.00	&			0.87				\\	\hline
-1 				&			1.0		&			0.1					&	0: 0.89	1: 0.00	&	0: 1.00	1:0.00	&			0.89				\\	\hline
-2 				&			1.0		&			0.1					&	0: 0.88	1: 0.00	&	0: 1.00	1:0.00	&			0.88				\\	\hline
-3 				&			100.0		&		0.01				&	0: 0.91	1: 0.62	&	0: 0.98	1:0.28	&			0.89				\\	\hline
-4 				&			100.0		&		0.01				&	0: 0.93	1: 0.62	&	0: 0.99	1:0.24	&			0.92				\\	\hline
-5 				&			1000.0	&		0.01				&	0: 0.96	1: 0.64	&	0: 0.99	1:0.21	&			0.96				\\	\hline
-6 				&			1.0		&			0.1					&	0: 0.98	1: 0.00	&	0: 1.00	1:0.00	&			0.98				\\	\hline
-9(MSB) 		&			1.0		&			0.1					&	0: 1.00	1: 0.00	&	0: 1.00	1:0.00	&			0.99				\\	\hline
+\begin{tabular}{|c|c|c|} \hline
+	Bit 		&			C			&			$\gamma$		\\	\hline
+0 (LSB)		&			1.0		&			0.1					\\	\hline
+1 				&			1.0		&			0.1				  \\	\hline
+2 				&			1.0		&			0.1					\\	\hline
+3 				&			100.0		&		0.01				\\	\hline
+4 				&			100.0		&		0.01				\\	\hline
+5 				&			1000.0	&		0.01				\\	\hline
+6 				&			1.0		&			0.1					\\	\hline
+7(MSB) 		&			1.0		&			0.1					\\	\hline
 \end{tabular}
-\caption{Verfication Results}          
-\label{table:verfresults}}
+\caption{Validation Results}          
+\label{table:valresults}}
 \end{table}
 
+\subsection{Results}
+The performance for each bit binary classification is quite high.  However, the precision and recall results imply that the classifiers were able to predict 0 far better than it was able to predict 1.  This is because the 80\% of the data has 0.0 for it's expected value.  One would then expect that each bit was $0$ 90\% of the time assuming the bits are uniformly distributed. 
+\begin{table}[h]
+{\centering
+\begin{tabular}{|c|c|c|c|} \hline
+	Bit 		&			precision				&		recall				&		accuracy			\\	\hline
+0 (LSB)		&			0: 0.87	1: 0.00	&	0: 1.00	1:0.00	&		0.87	\\	\hline
+1 				&			0: 0.89	1: 0.00	&	0: 1.00	1:0.00	&		0.89	\\	\hline
+2 				&			0: 0.88	1: 0.00	&	0: 1.00	1:0.00	&		0.88	\\	\hline
+3 				&			0: 0.91	1: 0.62	&	0: 0.98	1:0.28	&		0.89	\\	\hline
+4 				&			0: 0.93	1: 0.62	&	0: 0.99	1:0.24	&		0.92	\\	\hline
+5 				&			0: 0.96	1: 0.64	&	0: 0.99	1:0.21	&	  0.96	\\	\hline
+6 				&			0: 0.98	1: 0.00	&	0: 1.00	1:0.00	&		0.98	\\	\hline
+7(MSB) 		&			0: 1.00	1: 0.00	&	0: 1.00	1:0.00	&		0.99	\\	\hline
+\end{tabular}
+\caption{Bit Classification Results}          
+\label{table:valresults}}
+\end{table}
+
+The following table contains the accuracy of the predicted expected number once the bits are reassembled relative to the true expected number:
+\begin{table}[h]
+{\centering 
+\begin{tabular}{|c|c|c|c|} \hline
+	Overall Accuracy 		&			Zero Accuracy				&		Non-Zero Accuracy		\\	\hline
+		0.71							&					0.70						&				0.01					\\	\hline			
+\end{tabular}
+\caption{Bit Overall Results}          
+\label{table:overallResults}}
+\end{table}
+As \ref{table:overallResults} demonstrates, the bit binary classifiers predict 0 with some degree of performance.   However, being that there only 8 bits, it did predict slightly over than $2^{-8}$.  This would suggest that, to some degree, this technique might be applied to data that was not so sparse.  That is, if the expected values or labels were more evenly distributed.  
 
 \bibliographystyle{plain}
 \bibliography{final_bib}
