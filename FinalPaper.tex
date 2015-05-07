@@ -17,7 +17,9 @@
 \subsection{Problem}
 Predict probabilistic distribution of hourly rain given polarimetric radar measurements.
 The project attempts to use the probabilistic distribution of rain over a field using data from
-polarimetric radar. Since this is a cumulative distribution, we decided that the prediction for a certain row in the test data (which is just a total amount of rain in mm for the hour) would be the center of a sigmoid, and the values of this sigmoid would be used to populate the columns in the output file. This allows people to avoid putting rain gauges everywhere. A polarimetric
+polarimetric radar. Since this is a cumulative distribution, we decided that the prediction for a certain row in the test data (which is just a total amount of rain in mm for the hour) would be the center of a sigmoid, and the values of this sigmoid would be used to populate the columns in the output file. 
+
+A solution to this problem would allow people to avoid putting rain gauges everywhere. A polarimetric
 radar transmits radio wave pulses in both vertical and horizontal orientations allowing the size
 of a raindrop to be more easily inferred when compared with Doppler radar.
 This problem is traditionally solved using some form of regression.  We have attempted to solve this problem using linear regression, an Ensemble of Decision Trees, and a binary classifier to attempt to predict each bit.
