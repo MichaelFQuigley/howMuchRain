@@ -2,9 +2,14 @@
 \usepackage{amsmath}
 \usepackage{listings}
 \usepackage{mathtools}
+\usepackage{url}
+
+
+
 \title{Machine Learning Final Project}
 \author{Michael Quigley, Zachary Wilcox}
 \date{5/5/15}
+
 
 \begin{document}
 \maketitle
@@ -50,7 +55,7 @@ $$w^{T + 1}_j = w^{T}_j - \gamma^T(w^{T} \cdot x_{i} - y_i)x_{ij}$$
 Where $\gamma^T$ is the learning rate for a specific iteration, $i$ is the example number, and $j$ is the feature number. The prediction was of the form:
 $$w^{T} \cdot x_{i}.$$
 The learning rate was changed after every iteration using the following and was initialized as $\gamma_0$:
-$$\gamma^{T + 1} = \frac{\gamma^{T}}{1 + \gamma^{T} / C}$$
+$$\gamma^{T + 1} = \frac{\gamma_{0}}{1 + \gamma^{T} / C}$$
 Where C is a hyper parameter.
 
 
@@ -85,13 +90,56 @@ See Table \ref{table:linAcc}.
           \caption{Linear Regression Results}          
           \label{table:linAcc}}
   \end{table}
-\section{Bit Binary Classification}
 
-The assumption is the expected value of the data is some linear or non-linear arithmetic combination of the all the features.  Arithmetic operations can be performed at the bit level.  For example, $A$ added to $B$ at the bit level is $A \oplus B = S$, $A \land B = C$ for the carry and sum respectively \cite{lancaster2001excel}.  
+As stated, most of the data is a zero. One observation that was made was that most of the non-zero predictions that were very close to zero had a zero label. One addition to the third linear regression experiment was to set these small non-zero predictions to zero if they were less than some delta (0.2). The results of this addition are shown in table \ref{table:linAccModified}.
+  \begin{table}[h]
+        {\centering
+          \begin{tabular}{|c|c|c|c|c|}
+            \hline
+             $\gamma_0$ & C & Accuracy Metric & Accuracy (\%) & Kaggle Ranking\\
+            \hline
+                0.0007 &   0.05        & 0-non0 & 85.5 & 285/305 \\
+             \hline
+                - &   -        & $abs(a - b) > delta$ & 92.15 & - \\
+                  \hline
+          \end{tabular}
+          \caption{Linear Regression Results}          
+          \label{table:linAccModified}}
+  \end{table}
+
+
+\section{Adaboosted Tree Ensemble}
+\section{Bit Binary Classification}
+Real numbers can be represented in binary.  That means it might be possible to use a binary classifier to predict each bit of the number.  The assumption is the expected value of the data is some linear or non-linear arithmetic combination of the all the features.  Arithmetic operations can be performed at the bit level.  For example, $A$ added to $B$ at the bit level is $A \oplus B = S$, $A \land B = C$ for the sum and carry respectively \cite{lancaster2001excel}.  However, the add operation is not linearly separable because of the $\oplus$ operator.  The relation ship between all the features may also not be linear.  For these reasons we decided to use the RBF kernel which lifts it into an infinite space. This kernel is common in support vector machines (svm).  Our implementation uses a C-Support Vector Classification based of the LIBSVM library \cite{LIBSVM}\cite{scikit-learn}.\\
+\subsection{Expected value representation}
+The expected values are floating point with one decimal point.  IEEE 754 defines floating points to be represented with 32 bits.  We've multiplied the expected value by ten.  We then restricted the domain with eight bits.  Anything more than eight bits was rejected.  This covered all the data except for abnormally large values.
+ \subsection{Best parameters}
+ RBF is defined as: 
+$$K(\textbf{x},\textbf{x'}) = exp(-\frac{||\textbf{x} - \textbf{x'} ||}{\gamma} )$$ where $\gamma = 2\sigma^2$\cite{vert2004primer}.  SVM is defined as:
+\begin{equation}
+\mathop{min}_{\textbf{w}, b, \textbf{$\xi$} } \frac{1}{2} \textbf{w}^T\textbf{w} + C\sum {\xi}
+\end{equation}
+subject to $y_i(\textbf{w}\phi(x_i) + b) \geq 1 - \xi_i$ \cite{LIBSVM}\\
+We used a 10-fold cross verification for each bit to find the best $\gamma$ and $C$ parameter.
+
+\begin{table}[h]
+{\centering
+\begin{tabular}{|c|c|c|c|c|c|} \hline
+	Bit 		&			C			&			$\gamma$		&		precision			&		recall				&		accuracy			\\	\hline
+0 (LSB)		&			1.0		&			0.1					&	0: 0.87	1: 0.00	&	0: 1.00	1:0.00	&			0.87				\\	\hline
+1 				&			1.0		&			0.1					&	0: 0.89	1: 0.00	&	0: 1.00	1:0.00	&			0.89				\\	\hline
+2 				&			1.0		&			0.1					&	0: 0.88	1: 0.00	&	0: 1.00	1:0.00	&			0.88				\\	\hline
+3 				&			100.0		&		0.01				&	0: 0.91	1: 0.62	&	0: 0.98	1:0.28	&			0.89				\\	\hline
+4 				&			100.0		&		0.01				&	0: 0.93	1: 0.62	&	0: 0.99	1:0.24	&			0.92				\\	\hline
+5 				&			1000.0	&		0.01				&	0: 0.96	1: 0.64	&	0: 0.99	1:0.21	&			0.96				\\	\hline
+6 				&			1.0		&			0.1					&	0: 0.98	1: 0.00	&	0: 1.00	1:0.00	&			0.98				\\	\hline
+9(MSB) 		&			1.0		&			0.1					&	0: 1.00	1: 0.00	&	0: 1.00	1:0.00	&			0.99				\\	\hline
+\end{tabular}
+\caption{Verfication Results}          
+\label{table:verfresults}}
+\end{table}
+
 
 \bibliographystyle{plain}
 \bibliography{final_bib}
-
-
-
 \end{document}
