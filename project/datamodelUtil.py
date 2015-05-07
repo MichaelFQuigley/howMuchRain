@@ -133,7 +133,7 @@ def processData2(csvFile, isTest, headers = None, postProcLambda = None):
             if data[i] == None:
                 data[i] = medians[i]
     dataType = 'int'
-    return np.asarray(allData, dtype = 'float'), np.asarray(y, dtype = dataType), np.asarray(ids, dtype = dataType)
+    return np.asarray(allData, dtype = dataType), np.asarray(y, dtype = dataType), np.asarray(ids, dtype = dataType)
 
     
     

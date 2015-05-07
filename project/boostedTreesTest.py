@@ -9,6 +9,7 @@ from sklearn.metrics import classification_report
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
 from submissionCreator import submissionCreator
+import mistakeMetric
 
 omitCols = ['ReflectivityQC', 'HybridScan', 'Velocity', 'Reflectivity', 'Composite']
 omitCols.extend([ 'HydrometeorType', 'DistanceToRadar', 'Zdr', 'RhoHV', 'Kdp'])
@@ -35,7 +36,7 @@ def validateBoostedTree(x, y):
     predictions = boostedTree.predict(xTest)
     print predictions
     print classification_report(yTest, predictions)    
-    
+    mistakeMetric.getAlgoAccuracies(predictions, yTest)
     return boostedTree
             
 def createSubmission(classifier, testFile):

@@ -103,12 +103,41 @@ As stated, most of the data is a zero. One observation that was made was that mo
                 - &   -        & $abs(a - b) > delta$ & 92.15 & - \\
                   \hline
           \end{tabular}
-          \caption{Linear Regression Results}          
+          \caption{Modified Linear Regression Results}          
           \label{table:linAccModified}}
   \end{table}
 
 
 \section{Adaboosted Tree Ensemble}
+Both the adaBoost and decision tree algorithms were taken from the SKLearn library \cite{scikit-learn}. For learning, the labels were discretized into buckets that were ranges over an interval of size 0.3. The feature selection performed here was similar to the linear regression feature selection. The 'HydrometeorType', 'Composite', and 'Kdp' columns were removed since their removal appeared to improve accuracy. This algorithm takes too long to run on the entire train set, so a file that was just 100,000 elements of the train set was used. The tree algorithm would also discretize the input. A max tree depth of 10 was used depite there being about twice as many features. This was to mitigate overfitting. The decision criteria was based on entropy. The learning rate for adaBoost was initialized to 1.0. The first 75\% of the train file was used for learning, and the last 25\% was used for testing.
+\subsection{Results}
+See table \ref{table:treeEnsembleReport} for a short summary of the classification report and the other two accuracy metric results. 
+  \begin{table}[h]
+        {\centering
+          \begin{tabular}{|c|c|}
+            \hline
+             Total precision & 64 \% \\
+            \hline
+                Precision on 0 label &   83 \% \\
+             \hline
+                Precision on 0.3 label &   12 \%  \\
+                \hline 
+                Precision on 5.4 label &   15 \%  \\
+                \hline
+                Precision on 10.5 label &   100 \%  \\
+                  \hline
+                  \hline 
+                  0-non0 & 64.18 \%\\
+                  \hline
+                 $abs(a - b) > 0.5$ & 51.6 \% \\
+                  \hline
+          \end{tabular}
+          \caption{Tree Ensemble Results}          
+          \label{table:treeEnsembleReport}}
+  \end{table}
+These results were not deemed worthy of submitting to Kaggle, so we didn't submit them.
+  
+
 \section{Bit Binary Classification}
 Real numbers can be represented in binary.  That means it might be possible to use a binary classifier to predict each bit of the number.  The assumption is the expected value of the data is some linear or non-linear arithmetic combination of the all the features.  Arithmetic operations can be performed at the bit level.  For example, $A$ added to $B$ at the bit level is $A \oplus B = S$, $A \land B = C$ for the sum and carry respectively \cite{lancaster2001excel}.  However, the add operation is not linearly separable because of the $\oplus$ operator.  The relation ship between all the features may also not be linear.  For these reasons we decided to use the RBF kernel which lifts it into an infinite space. This kernel is common in support vector machines (svm).  Our implementation uses a C-Support Vector Classification based of the LIBSVM library \cite{LIBSVM}\cite{scikit-learn}.\\
 \subsection{Expected value representation}
