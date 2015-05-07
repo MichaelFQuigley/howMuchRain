@@ -96,7 +96,7 @@ As stated, most of the data is a zero. One observation that was made was that mo
 
 
 \section{Adaboosted Tree Ensemble}
-Both the adaBoost and decision tree algorithms were taken from the SKLearn library \cite{scikit-learn}. For learning, the labels were discretized into buckets that were ranges over an interval of size 0.3. The feature selection performed here was similar to the linear regression feature selection. The 'HydrometeorType', 'Composite', and 'Kdp' columns were removed since their removal appeared to improve accuracy. This algorithm takes too long to run on the entire train set, so a file that was just 100,000 elements of the train set was used. The tree algorithm would also discretize the input. A max tree depth of 10 was used depite there being about twice as many features. This was to mitigate overfitting. The decision criteria was based on entropy. The learning rate for adaBoost was initialized to 1.0. The first 75\% of the train file was used for learning, and the last 25\% was used for testing.
+Both the adaBoost and decision tree algorithms were taken from the SKLearn library \cite{scikit-learn}. For learning, the labels were discretized into buckets that were ranges over an interval of size 0.3. The feature selection performed here was similar to the linear regression feature selection. The 'HydrometeorType', 'Composite', and 'Kdp' columns were removed since their removal appeared to improve accuracy. This algorithm takes too long to run on the entire train set, so a file that was just 100,000 elements of the train set was used. The tree algorithm would also discretize the input. A max tree depth of 10 was used despite there being about twice as many features. This was to mitigate overfitting. The decision criteria was based on entropy. The learning rate for adaBoost was initialized to 1.0. The first 75\% of the train file was used for learning, and the last 25\% was used for testing.
 \subsection{Results}
 See table \ref{table:treeEnsembleReport} for a short summary of the classification report and the other two accuracy metric results. 
   \begin{table}[h]
@@ -184,7 +184,7 @@ As \ref{table:overallResults} demonstrates, the bit binary classifiers predict 0
 \section{Conclusions}
 The typical way to solve this problem is regression.  This seemed to perform reasonably well in comparison to the other algorithms using the selected accuracy metrics. The other methods may have worked better on data that is more uniformly distributed.
 
-If we had more time, we would have tried more transformations such as polynomial kernels. We would have also tried more ensemble methods such as random forests. One of the most significant limiting factors was computing power. We tried running the polynomial kernels, but they took long than 48 hours and never completed. We should have used Amazon's EC2, or the HPC clusters at the University of Utah.
+If we had more time, we would have tried more transformations such as polynomial kernels. We would have also tried more ensemble methods such as random forests. One of the most significant limiting factors was computing power. We tried running the polynomial kernels, but they took longer than 48 hours so we canceled them and moved on. We should have used Amazon's EC2, or the HPC clusters at the University of Utah.
 
 \bibliographystyle{plain}
 \bibliography{final_bib}
